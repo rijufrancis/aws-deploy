@@ -2,18 +2,32 @@ version: 2.1
 
 # Define the jobs we want to run for this project
 jobs:
-    create_infrastructure:
-        docker:
-          - image: amazon/aws-cli
-        steps:
-          - checkout
-          - run:
-              name: Create Cloudformation Stack 
-              command: | 
-                aws cloudformation deploy \
-                --template-file template.yml \
-                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-                --region ${AWS_DEFAULT_REGION}
+  create_instance:
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        - run:
+            name: Create Cloudformation Stack 
+            command: | 
+              aws cloudformation deploy \
+              --template-file template.yml \
+              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region ${AWS_DEFAULT_REGION}
+
+  create_infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+        fingerprints: ["f1:de:f2:42:19:42:65:4c:a7:b7:28:cb:fb:b3:99:a2"]
+      - run:
+          name: Install Ansible 
+          command: apk add --update ansible
+      - run:
+          name: Run Playbook and Configure server
+          command: ansible-playbook -i inventory main-remote.yml
 
 # Sequential workflow
 workflows:
