@@ -37,6 +37,4 @@ workflows:
     create_infrastructure_wf:
       jobs:
         - create_instance
-        - create_infrastructure:
-            requires:
-              - create_instance
+        - create_infrastructure
