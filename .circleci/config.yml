@@ -36,4 +36,7 @@ workflows:
     # Name the workflow
     create_infrastructure_wf:
       jobs:
-        - create_infrastructure
+        - create_instance
+        - create_infrastructure:
+            requires:
+              - create_instance
