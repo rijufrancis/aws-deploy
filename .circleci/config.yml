@@ -4,7 +4,7 @@ version: 2.1
 jobs:
   create_instance:
     docker:
-      - image: amazon/aws-cli
+      - image: amazon/aws-cli:latest
     steps:
       - checkout
       - run:
