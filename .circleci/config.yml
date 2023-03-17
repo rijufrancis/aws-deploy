@@ -79,14 +79,13 @@ jobs:
 
   verify_negative:
     docker:
-      - image: alpine:latest
+      - image: amazon/aws-cli:latest
     steps:
       - attach_workspace:
           at: /tmp
       - run:
           name: Verify Website Health 
           command: |
-            apk add --update curl
             ipaddress=`cat /tmp/inventory`
             if curl -s --head "http://$ipaddress:3001" 
             then
