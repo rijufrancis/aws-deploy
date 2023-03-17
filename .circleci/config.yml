@@ -109,5 +109,5 @@ workflows:
               - create_infrastructure
         - verify_negative:
             requires:
-              - create_infrastructure
+              - verify_website
 
