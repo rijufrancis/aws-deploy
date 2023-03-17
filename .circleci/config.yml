@@ -12,8 +12,19 @@ jobs:
           command: | 
             aws cloudformation deploy \
             --template-file template.yml \
-            --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+            --stack-name aws-deploy-cc \
             --region ${AWS_DEFAULT_REGION}
+      - run:
+          name: Retrieve IP Address
+          command: |
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --output text > /tmp/inventory
+      - persist_to_workspace:
+          name: Adding inventory to persist_to_workspace
+          root: /tmp
+          paths:
+            - inventory
 
   create_infrastructure:
     docker:
@@ -26,14 +37,42 @@ jobs:
           name: Install Ansible 
           command: |
             apk add --update ansible
+      - attach_workspace:
+          at: /tmp
       - run:
           name: Run Playbook and Configure server
           command: |
+            cat /tmp/inventory >> inventory
             ansible-playbook -i inventory main-remote.yml
+
+  verify_website:
+    docker:
+      - image: alpine:latest
+    steps:
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Install Ansible 
+          command: |
+            apk add --update curl
+            ipaddress=`cat /tmp/inventory`
+            if curl -s --head "http://$ipaddress:3000" 
+            then
+              exit 0
+            else
+              exit -1
+            fi
 
 # Sequential workflow
 workflows:
     # Name the workflow
     create_infrastructure_wf:
       jobs:
-        - create_infrastructure
+        - create_instance
+        - create_infrastructure:
+            requires:
+              - create_instance
+        - verify_website:
+            requires:
+              - create_infrastructure
+
