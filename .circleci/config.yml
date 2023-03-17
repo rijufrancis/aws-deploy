@@ -20,6 +20,10 @@ jobs:
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text > /tmp/inventory
+      - run:
+          name: Install tar and gzip
+          command: |
+            yum install -y tar gzip
       - persist_to_workspace:
           name: Adding inventory to persist_to_workspace
           root: /tmp
