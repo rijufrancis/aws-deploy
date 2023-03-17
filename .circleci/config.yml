@@ -1,5 +1,15 @@
 version: 2.1
 
+commands:
+  # Exercise - Rollback
+  destroy_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          command: |
+            aws cloudformation delete-stack --stack-name aws-deploy-cc
+          when: on_fail
+
 # Define the jobs we want to run for this project
 jobs:
   create_instance:
@@ -80,10 +90,11 @@ jobs:
             ipaddress=`cat /tmp/inventory`
             if curl -s --head "http://$ipaddress:3001" 
             then
-              exit -1
-            else
               exit 0
+            else
+              exit -1
             fi
+      - destroy_environment
 
 # Sequential workflow
 workflows:
