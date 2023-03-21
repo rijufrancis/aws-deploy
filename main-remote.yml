@@ -1,8 +1,7 @@
 ---
-# Exercise for setting up a web server in an EC
-- name: Exercise for setting up a web server in an EC   
+- name: Install and configure prometheus  
   # Use the public IP if the VM is already created
-  hosts: all
+  hosts: prometheus
   # For Ubuntu instances, the user will be `ubuntu`
   # For Amazon LInux 2 instance, the user will be `ec2-user`
   user: ubuntu
@@ -10,4 +9,4 @@
   become_method: sudo
   become_user: root
   roles:
-   - setup
+   - prometheus
